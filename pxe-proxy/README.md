@@ -30,6 +30,13 @@ doing all of that, and the client combines both replies:
 The add-on does not serve the boot files itself — point it at any TFTP server
 already on your network.
 
+## Before installing
+
+Only one process on the host can hold UDP port 67. Network boot add-ons
+frequently run a proxy DHCP server of their own, and where one already does,
+this add-on has nothing left to add and will not start. Check whether
+something on the host already answers DHCP before installing.
+
 ## Installation
 
 1. Add this repository to Home Assistant (see the [repository README][repo]).
