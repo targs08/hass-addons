@@ -10,7 +10,6 @@ image: ghcr.io/targs08/pxe-proxy-{arch}
 arch:
   - amd64
   - aarch64
-  - armv7
 init: false
 host_network: true
 startup: services

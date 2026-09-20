@@ -2,7 +2,6 @@
 build_from:
   amd64: ghcr.io/hassio-addons/base/amd64:21.0.5
   aarch64: ghcr.io/hassio-addons/base/aarch64:21.0.5
-  armv7: ghcr.io/hassio-addons/base/armv7:18.2.1
 labels:
   org.opencontainers.image.title: PXE Proxy
   org.opencontainers.image.description: >-

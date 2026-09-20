@@ -8,4 +8,4 @@
 - Boot file selected per client firmware (BIOS, UEFI x86, UEFI x86-64,
   UEFI ARM64) from DHCP option 93.
 - Optional interface binding and configurable log level.
-- Builds for amd64, aarch64 and armv7.
+- Builds for amd64 and aarch64.
