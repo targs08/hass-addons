@@ -1,0 +1,79 @@
+name: Builder
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    name: Discover add-ons
+    outputs:
+      matrix: ${{ steps.discover.outputs.matrix }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build the add-on / architecture matrix
+        id: discover
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import glob
+          import json
+          import os
+
+          import yaml
+
+          entries = []
+          for path in sorted(glob.glob("*/config.yaml")):
+              addon = os.path.dirname(path)
+              with open(path, encoding="utf-8") as handle:
+                  config = yaml.safe_load(handle)
+              if not config.get("image"):
+                  continue
+              for arch in config.get("arch", []):
+                  entries.append({"addon": addon, "arch": arch})
+
+          print(f"matrix={json.dumps({'include': entries})}")
+          PY
+
+  build:
+    needs: discover
+    runs-on: ubuntu-latest
+    if: fromJson(needs.discover.outputs.matrix).include[0] != null
+    name: Build ${{ matrix.addon }} (${{ matrix.arch }})
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.discover.outputs.matrix) }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Log in to the GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build ${{ matrix.addon }}
+        uses: home-assistant/builder@master
+        with:
+          args: |
+            ${{ github.event_name == 'pull_request' && '--test' || '' }} \
+            --${{ matrix.arch }} \
+            --target /data/${{ matrix.addon }} \
+            --image ${{ matrix.addon }}-{arch} \
+            --docker-hub ghcr.io/${{ github.repository_owner }} \
+            --addon

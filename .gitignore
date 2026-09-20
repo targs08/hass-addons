@@ -1,0 +1,8 @@
+.DS_Store
+*.swp
+*.log
+.idea/
+.vscode/
+
+# Working notes, not part of the repository content
+dnsmasq-pxe-proxy-project.md

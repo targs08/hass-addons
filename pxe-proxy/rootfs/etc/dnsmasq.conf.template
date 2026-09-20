@@ -1,0 +1,50 @@
+# ==============================================================================
+# PXE Proxy - dnsmasq configuration
+#
+# Generated from the add-on options at container startup. The placeholders
+# below are substituted by the init script, do not edit them by hand.
+# ==============================================================================
+
+# Only DHCP/PXE is used, the DNS server stays disabled so that nothing
+# competes with the resolver already running on the network.
+port=0
+
+# Raw sockets are needed to reply to clients that do not have an address yet,
+# so keep the process running as root instead of dropping to the dnsmasq user.
+user=root
+group=root
+
+# Proxy DHCP: never hand out addresses or lease information, only answer the
+# PXE part of the conversation. The existing DHCP server stays in charge.
+dhcp-range=__SUBNET__,proxy
+
+# Follow interface address changes rather than binding the wildcard address,
+# which would collide with the other DHCP server on the host network.
+bind-dynamic
+
+# Send the boot server and boot file as dedicated options instead of reusing
+# the legacy siaddr/file fields, which some firmware ignores.
+dhcp-no-override
+
+# Boot immediately instead of showing a PXE menu.
+pxe-prompt="Network boot",0
+
+# Identify the client firmware from DHCP option 93 (client architecture).
+dhcp-match=set:bios,option:client-arch,0
+dhcp-match=set:uefi-ia32,option:client-arch,6
+dhcp-match=set:uefi-x64,option:client-arch,7
+dhcp-match=set:uefi-x64,option:client-arch,9
+dhcp-match=set:uefi-arm64,option:client-arch,11
+
+# Boot file per firmware type, for clients that read the DHCP boot options.
+dhcp-boot=tag:bios,__BOOT_BIOS__,,__TFTP_IP__
+dhcp-boot=tag:uefi-ia32,__BOOT_UEFI_IA32__,,__TFTP_IP__
+dhcp-boot=tag:uefi-x64,__BOOT_UEFI__,,__TFTP_IP__
+dhcp-boot=tag:uefi-arm64,__BOOT_UEFI_ARM64__,,__TFTP_IP__
+
+# The same answer for clients that ask over the PXE protocol on port 4011.
+pxe-service=x86PC,"Network boot (BIOS)",__BOOT_BIOS__,__TFTP_IP__
+pxe-service=IA32_EFI,"Network boot (UEFI x86)",__BOOT_UEFI_IA32__,__TFTP_IP__
+pxe-service=BC_EFI,"Network boot (UEFI x86-64)",__BOOT_UEFI__,__TFTP_IP__
+pxe-service=x86-64_EFI,"Network boot (UEFI x86-64)",__BOOT_UEFI__,__TFTP_IP__
+pxe-service=ARM64_EFI,"Network boot (UEFI ARM64)",__BOOT_UEFI_ARM64__,__TFTP_IP__

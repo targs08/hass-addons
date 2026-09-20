@@ -1,0 +1,14 @@
+#!/usr/bin/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Run the proxy DHCP server
+# ==============================================================================
+bashio::log.level "$(bashio::config 'log_level')"
+
+bashio::log.info "Starting dnsmasq..."
+
+# --log-facility=- keeps the output on stderr so it ends up in the add-on log.
+exec dnsmasq \
+    --no-daemon \
+    --keep-in-foreground \
+    --log-facility=-

@@ -1,0 +1,42 @@
+---
+configuration:
+  subnet:
+    name: Subnet
+    description: >-
+      Network address of the subnet the clients boot on, without a prefix
+      length. For example 192.168.1.0 for a 192.168.1.0/24 network.
+  tftp_server_ip:
+    name: TFTP server IP
+    description: >-
+      IPv4 address of the TFTP server holding the boot files. It must be
+      reachable from the clients.
+  boot_file_bios:
+    name: Boot file (BIOS)
+    description: >-
+      Boot file for clients booting in legacy BIOS mode, relative to the TFTP
+      server root.
+  boot_file_uefi:
+    name: Boot file (UEFI x86-64)
+    description: >-
+      Boot file for 64-bit UEFI clients, which covers practically all modern
+      x86 hardware.
+  boot_file_uefi_ia32:
+    name: Boot file (UEFI x86)
+    description: >-
+      Boot file for 32-bit UEFI clients. Leave empty to reuse the 64-bit UEFI
+      boot file.
+  boot_file_uefi_arm64:
+    name: Boot file (UEFI ARM64)
+    description: >-
+      Boot file for 64-bit ARM UEFI clients. Leave empty to reuse the 64-bit
+      UEFI boot file.
+  interfaces:
+    name: Interfaces
+    description: >-
+      Network interfaces to listen on, for example eth0. Leave empty to listen
+      on every interface.
+  log_level:
+    name: Log level
+    description: >-
+      How much the add-on writes to its log. info logs every DHCP transaction,
+      debug additionally prints the generated dnsmasq configuration.

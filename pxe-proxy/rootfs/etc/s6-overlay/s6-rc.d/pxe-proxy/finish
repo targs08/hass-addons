@@ -1,0 +1,14 @@
+#!/usr/bin/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Take the add-on down when dnsmasq stops
+# ==============================================================================
+readonly exit_code_service="${1}"
+
+# 256 means the service was killed by a signal, which is how a normal add-on
+# stop looks. Anything else non-zero is a real failure worth reporting.
+if [[ "${exit_code_service}" -ne 0 ]] && [[ "${exit_code_service}" -ne 256 ]]; then
+    bashio::log.warning "dnsmasq exited with code ${exit_code_service}"
+fi
+
+exec /run/s6/basedir/bin/halt

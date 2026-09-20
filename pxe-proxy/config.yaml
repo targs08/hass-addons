@@ -1,0 +1,37 @@
+---
+name: PXE Proxy
+version: "1.0.0"
+slug: pxe-proxy
+description: >-
+  Proxy DHCP server for PXE network booting on networks whose DHCP server
+  cannot advertise a boot server and boot file
+url: https://github.com/targs08/hass-addons/tree/main/pxe-proxy
+image: ghcr.io/targs08/pxe-proxy-{arch}
+arch:
+  - amd64
+  - aarch64
+  - armv7
+init: false
+host_network: true
+startup: services
+boot: auto
+privileged:
+  - NET_ADMIN
+  - NET_RAW
+options:
+  subnet: 192.168.1.0
+  tftp_server_ip: 192.168.1.2
+  boot_file_bios: netboot.xyz.kpxe
+  boot_file_uefi: netboot.xyz.efi
+  interfaces: []
+  log_level: info
+schema:
+  subnet: str
+  tftp_server_ip: str
+  boot_file_bios: str
+  boot_file_uefi: str
+  boot_file_uefi_ia32: str?
+  boot_file_uefi_arm64: str?
+  interfaces:
+    - str
+  log_level: list(trace|debug|info|notice|warning|error|fatal)

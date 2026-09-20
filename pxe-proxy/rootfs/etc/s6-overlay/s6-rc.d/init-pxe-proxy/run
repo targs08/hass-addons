@@ -1,0 +1,79 @@
+#!/usr/bin/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Render /etc/dnsmasq.conf from the add-on options
+# ==============================================================================
+declare subnet
+declare tftp_server_ip
+declare boot_bios
+declare boot_uefi
+declare boot_uefi_ia32
+declare boot_uefi_arm64
+declare interface
+
+readonly template="/etc/dnsmasq.conf.template"
+readonly config="/etc/dnsmasq.conf"
+
+bashio::log.level "$(bashio::config 'log_level')"
+
+bashio::config.require 'subnet'
+bashio::config.require 'tftp_server_ip'
+bashio::config.require 'boot_file_bios'
+bashio::config.require 'boot_file_uefi'
+
+subnet=$(bashio::config 'subnet')
+tftp_server_ip=$(bashio::config 'tftp_server_ip')
+boot_bios=$(bashio::config 'boot_file_bios')
+boot_uefi=$(bashio::config 'boot_file_uefi')
+
+# The 32-bit UEFI and ARM64 boot files fall back to the 64-bit one, which is
+# the right answer whenever a single boot loader covers every architecture.
+boot_uefi_ia32="${boot_uefi}"
+if bashio::config.has_value 'boot_file_uefi_ia32'; then
+    boot_uefi_ia32=$(bashio::config 'boot_file_uefi_ia32')
+fi
+
+boot_uefi_arm64="${boot_uefi}"
+if bashio::config.has_value 'boot_file_uefi_arm64'; then
+    boot_uefi_arm64=$(bashio::config 'boot_file_uefi_arm64')
+fi
+
+if [[ ! "${subnet}" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+    bashio::exit.nok "'${subnet}' is not a valid subnet address, expected something like 192.168.1.0"
+fi
+
+if [[ ! "${tftp_server_ip}" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+    bashio::exit.nok "'${tftp_server_ip}' is not a valid IPv4 address"
+fi
+
+sed -e "s|__SUBNET__|${subnet}|g" \
+    -e "s|__TFTP_IP__|${tftp_server_ip}|g" \
+    -e "s|__BOOT_BIOS__|${boot_bios}|g" \
+    -e "s|__BOOT_UEFI__|${boot_uefi}|g" \
+    -e "s|__BOOT_UEFI_IA32__|${boot_uefi_ia32}|g" \
+    -e "s|__BOOT_UEFI_ARM64__|${boot_uefi_arm64}|g" \
+    "${template}" > "${config}"
+
+# Without an explicit list dnsmasq listens on every interface it finds.
+for interface in $(bashio::config 'interfaces'); do
+    echo "interface=${interface}" >> "${config}"
+done
+
+# Log every DHCP transaction unless the user asked for a quieter add-on.
+case "$(bashio::config 'log_level')" in
+    trace|debug|info)
+        echo "log-dhcp" >> "${config}"
+        ;;
+esac
+
+bashio::log.info "Proxy DHCP for subnet: ${subnet}"
+bashio::log.info "TFTP server: ${tftp_server_ip}"
+bashio::log.info "Boot file (BIOS): ${boot_bios}"
+bashio::log.info "Boot file (UEFI x86-64): ${boot_uefi}"
+bashio::log.info "Boot file (UEFI x86): ${boot_uefi_ia32}"
+bashio::log.info "Boot file (UEFI ARM64): ${boot_uefi_arm64}"
+
+bashio::log.debug "Generated ${config}:"
+while read -r line; do
+    bashio::log.debug "${line}"
+done < "${config}"
