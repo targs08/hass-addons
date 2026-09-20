@@ -13,7 +13,6 @@ arch:
 init: false
 host_network: true
 startup: services
-boot: auto
 privileged:
   - NET_ADMIN
   - NET_RAW

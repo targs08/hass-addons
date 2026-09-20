@@ -15,7 +15,7 @@ jobs:
       matrix: ${{ steps.discover.outputs.matrix }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Build the add-on / architecture matrix
         id: discover
@@ -83,7 +83,7 @@ jobs:
       matrix: ${{ fromJson(needs.discover.outputs.matrix) }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Log in to the GitHub Container Registry
         if: github.event_name != 'pull_request'
