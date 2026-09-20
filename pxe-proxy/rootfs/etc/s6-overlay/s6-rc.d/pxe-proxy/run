@@ -5,6 +5,16 @@
 # ==============================================================================
 bashio::log.level "$(bashio::config 'log_level')"
 
+# DHCP needs UDP port 67 exclusively, and the add-on shares the host network.
+# Anything else already answering DHCP on the host takes the port first, and
+# dnsmasq then fails to bind. Port 67 is 0x0043 in /proc/net/udp.
+if grep -qE '^ *[0-9]+: [0-9A-F]+:0043 ' /proc/net/udp /proc/net/udp6 2>/dev/null; then
+    bashio::log.warning "UDP port 67 is already in use on the host network."
+    bashio::log.warning "Another service is answering DHCP already. Network boot"
+    bashio::log.warning "add-ons often provide proxy DHCP themselves, in which"
+    bashio::log.warning "case this add-on is redundant. Run only one of them."
+fi
+
 bashio::log.info "Starting dnsmasq..."
 
 # --log-facility=- keeps the output on stderr so it ends up in the add-on log.

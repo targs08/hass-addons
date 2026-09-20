@@ -9,6 +9,10 @@
 - Home Assistant and the clients on the same layer-2 network, with broadcast
   traffic allowed between them. Client isolation, guest networks and separate
   VLANs all prevent PXE from working.
+- No other DHCP or proxy DHCP service running on the Home Assistant host. Only
+  one process can hold UDP port 67. Note that network boot add-ons frequently
+  include proxy DHCP of their own, which makes this add-on redundant next to
+  them — see the troubleshooting section below.
 
 ## Configuration
 
@@ -125,6 +129,28 @@ The add-on is not seeing the client's broadcast.
   one facing the clients.
 - Check the router for client isolation, guest-network separation, or a
   separate VLAN between the host and the client.
+
+### `failed to bind DHCP server socket: Address in use`
+
+Something else on the Home Assistant host is already listening on UDP port
+67. The add-on runs on the host network, so it competes with every other
+service there, and only one of them can hold the port.
+
+The usual cause is a second proxy DHCP service. Network boot add-ons
+commonly run one themselves, in which case they already do this add-on's
+job and nothing is gained by running both — the add-on log says so before
+dnsmasq starts.
+
+Decide which one should answer PXE:
+
+- Keep the other service and uninstall or stop this add-on, if that service
+  already advertises the boot files you need.
+- Keep this add-on and stop the other service, if you need per-firmware boot
+  files or a TFTP server on a different machine.
+
+A full DHCP server on the host, rather than a proxy one, takes the port the
+same way. Note that Home Assistant's own DHCP discovery does not: it watches
+traffic on a raw socket and holds no port.
 
 ### `PXE-E53: No boot filename received`
 
