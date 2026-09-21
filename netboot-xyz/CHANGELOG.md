@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.4.3-fork.1
+
+- Added `tftp_server_ip` option to inject the TFTP server IP into
+  `pxe-service` / `dhcp-boot` directives, required when the DHCP server
+  (e.g. AVM FritzBox) does not send `next-server` / option 66.
+- Fork of upstream `FaserF/hassio-addons/netboot-xyz` 2.4.3, built and
+  published from `targs08/hass-addons`.
+
 ## 2.4.3 (2026-08-28)
 
 ### 🐛 Bug Fixes

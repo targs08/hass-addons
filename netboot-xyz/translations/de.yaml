@@ -14,3 +14,6 @@ configuration:
   menu_version:
     name: "Menü-Version"
     description: "Version der zu verwendenden netboot.xyz-Menüs (z. B. latest oder ein bestimmtes Tag)."
+  tftp_server_ip:
+    name: "TFTP-Server-IP"
+    description: "IP-Adresse dieses Home-Assistant-Hosts, wie PXE-Clients sie sehen. Setzen, wenn der DHCP-Server kein next-server (Option 66) sendet, sonst suchen Clients den TFTP-Server auf dem Router. Leer lassen für das Verhalten des Originals."

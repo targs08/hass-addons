@@ -21,6 +21,27 @@ menu_version: latest
 - `path` (Required): The storage path for netboot local assets.
 - `path_config` (Required): The storage path for configurations/menus.
 - `menu_version` (Optional): The version tag of the netboot.xyz menus and bootloader to use (e.g. `2.0.84` or `latest`). Set this to an older version if you experience keyboard lockup bugs with the latest upstream iPXE release.
+- `tftp_server_ip` (Optional): See below.
+
+### Option: `tftp_server_ip`
+
+*(optional, default: empty)*
+
+IP address of the machine running this add-on, as seen by PXE clients on
+the LAN. Required only when the main DHCP server (e.g. router) does **not**
+send DHCP option 66 (`next-server` / `siaddr`) pointing at this machine.
+This is the case for AVM FritzBox and many other consumer routers.
+
+When set, the value is injected into every `pxe-service=` line of the
+generated `dnsmasq.conf` as the 4th field (TFTP server IP), and an
+explicit `dhcp-boot=` directive is added for clients that don't read
+`pxe-service` records.
+
+Example: `tftp_server_ip: "192.168.178.100"` — the IP of your Home
+Assistant host on the LAN.
+
+Leave empty if your DHCP server correctly advertises this add-on's IP
+as the `next-server`; then behaviour is identical to upstream.
 
 ### Network Ports
 

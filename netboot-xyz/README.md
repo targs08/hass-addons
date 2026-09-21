@@ -9,6 +9,12 @@
 
 > PXE-Server to deploy a OS inside your local network
 
+> [!NOTE]
+> Fork of [FaserF's netboot.xyz add-on](https://github.com/FaserF/hassio-addons/tree/master/netboot-xyz)
+> (2.4.3) with one addition: the `tftp_server_ip` option, for networks whose
+> DHCP server does not advertise a `next-server`. See [DOCS.md](DOCS.md).
+> Distributed under the upstream [MIT license](LICENSE).
+
 ---
 
 ## 📖 About

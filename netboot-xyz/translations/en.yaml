@@ -14,3 +14,6 @@ configuration:
   menu_version:
     name: "Menu Version"
     description: "Version of the netboot.xyz menus to use (e.g. latest or a specific tag)."
+  tftp_server_ip:
+    name: "TFTP Server IP"
+    description: "IP address of this Home Assistant host as seen by PXE clients. Set it when your DHCP server does not send next-server (option 66), otherwise clients look for TFTP on the router. Leave empty for upstream behaviour."

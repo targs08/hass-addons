@@ -14,7 +14,7 @@ SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3018
 
 # App metadata (injected by CI)
-ENV APP_VERSION="2.4.3"
+ENV APP_VERSION="2.4.3-fork.1"
 ENV APP_NAME="Netboot.xyz"
 ENV APP_SLUG="netboot-xyz"
 ENV APP_UNSUPPORTED="false"
@@ -68,7 +68,7 @@ LABEL \
   org.opencontainers.image.vendor="FaserF's Home Assistant Apps" \
   org.opencontainers.image.authors="FaserF <https://github.com/FaserF>" \
   org.opencontainers.image.licenses="MIT" \
-  org.opencontainers.image.url="https://github.com/FaserF/hassio-addons/tree/master/netboot-xyz" \
-  org.opencontainers.image.source="https://github.com/FaserF/hassio-addons/tree/master/netboot-xyz" \
-  org.opencontainers.image.documentation="https://github.com/FaserF/hassio-addons/blob/master/netboot-xyz/README.md" \
+  org.opencontainers.image.url="https://github.com/targs08/hass-addons/tree/main/netboot-xyz" \
+  org.opencontainers.image.source="https://github.com/targs08/hass-addons/tree/main/netboot-xyz" \
+  org.opencontainers.image.documentation="https://github.com/targs08/hass-addons/blob/main/netboot-xyz/README.md" \
   org.opencontainers.image.created="${BUILD_DATE}"

@@ -97,3 +97,30 @@ cp /defaults/dnsmasq.conf /etc/dnsmasq.d/dnsmasq.conf
 
 echo $'\n' >>/etc/dnsmasq.d/dnsmasq.conf
 echo "dhcp-range=$dhcp_range,proxy" >>/etc/dnsmasq.d/dnsmasq.conf
+
+# --- Fork addition: inject TFTP server IP into pxe-service records ---
+# The pxe-service= lines in /defaults/dnsmasq.conf carry no server address
+# (4th field). In proxy-DHCP mode the client then falls back to the address
+# of the DHCP server that leased it an IP, which is the router, and TFTP
+# times out there. If tftp_server_ip is set, append it to every pxe-service
+# line and add an explicit dhcp-boot= for clients that ignore pxe-service.
+#
+# bashio::config.has_value rather than checking the value: once the option
+# is cleared in the UI it disappears from options.json, and bashio::config
+# then returns the literal string "null".
+if bashio::config.has_value 'tftp_server_ip'; then
+	tftp_server_ip=$(bashio::config 'tftp_server_ip')
+	bashio::log.info "Injecting TFTP server IP ${tftp_server_ip} into pxe-service records"
+
+	# Matches "pxe-service=ARCH, description, filename" with no 4th field. The
+	# description is not matched on its quotes, since /defaults/dnsmasq.conf
+	# mixes ASCII and typographic ones. Lines that already have 4 fields are
+	# left alone.
+	sed -i -E \
+		"s|(^pxe-service=[^,]+,[^,]+,[[:space:]]*[^,[:space:]]+)[[:space:]]*$|\1, ${tftp_server_ip}|" \
+		/etc/dnsmasq.d/dnsmasq.conf
+
+	if ! grep -q "^dhcp-boot=" /etc/dnsmasq.d/dnsmasq.conf; then
+		echo "dhcp-boot=netboot.xyz.efi,,${tftp_server_ip}" >>/etc/dnsmasq.d/dnsmasq.conf
+	fi
+fi
