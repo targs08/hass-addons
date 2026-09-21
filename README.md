@@ -15,7 +15,8 @@ Personal collection of Home Assistant add-ons.
 
 | Add-on | Description |
 | ------ | ----------- |
-| [PXE Proxy](./pxe-proxy) | Proxy DHCP and TFTP server for PXE network booting, based on dnsmasq. |
+| [PXE Proxy](./pxe-proxy) | Proxy DHCP server for PXE network booting, based on dnsmasq. |
+| [Netboot.xyz (fork)](./netboot-xyz) | Fork of FaserF's netboot.xyz add-on with a `tftp_server_ip` option. |
 
 ## Support
 
