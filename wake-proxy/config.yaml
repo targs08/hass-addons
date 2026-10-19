@@ -1,0 +1,44 @@
+---
+name: Wake Proxy
+version: "1.0.0"
+slug: wake-proxy
+description: >-
+  Будит сервер через Home Assistant при первом запросе и держит соединение,
+  пока сервис не поднимется. Учитывает PXE-дуалбут: сначала переключает
+  следующую загрузку на Ubuntu, потом шлёт magic packet.
+url: https://github.com/targs08/hass-addons/tree/main/wake-proxy
+image: ghcr.io/targs08/wake-proxy-{arch}
+arch:
+  - amd64
+  - aarch64
+init: false
+startup: services
+homeassistant_api: true
+ports:
+  11435/tcp: 11435
+ports_description:
+  11435/tcp: Точка входа вместо прямого адреса Ollama
+options:
+  upstream_host: ""
+  upstream_port: 11434
+  wake_entity: button.home_server_wake
+  boot_ubuntu_entity: shell_command.home_server_boot_ubuntu
+  next_boot_entity: sensor.home_server_next_boot
+  windows_entity: binary_sensor.home_server_windows_online
+  wake_timeout: 240
+  probe_interval: 3
+  probe_timeout: 2
+  boot_settle: 5
+schema:
+  upstream_host: str
+  upstream_port: port
+  wake_entity: str
+  boot_ubuntu_entity: str
+  next_boot_entity: str
+  windows_entity: str
+  wake_timeout: int(30,900)
+  probe_interval: int(1,60)
+  probe_timeout: int(1,30)
+  boot_settle: int(0,60)
+  ha_url: str?
+  listen_port: port?

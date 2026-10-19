@@ -1,0 +1,7 @@
+#!/command/with-contenv sh
+# ==============================================================================
+# Run the wake proxy
+# ==============================================================================
+
+# -u keeps the log flowing while a request is still being proxied.
+exec python3 -u /usr/bin/wake_proxy.py

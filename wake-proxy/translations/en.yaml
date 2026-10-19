@@ -1,0 +1,56 @@
+---
+configuration:
+  upstream_host:
+    name: Upstream host
+    description: >-
+      IP address of the machine running the upstream service. The add-on does
+      not start without it.
+  upstream_port:
+    name: Upstream port
+    description: Port of the upstream service. 11434 is Ollama's default.
+  wake_entity:
+    name: Wake entity
+    description: >-
+      Entity that sends the magic packet. A button or input_button is pressed,
+      a switch is turned on.
+  boot_ubuntu_entity:
+    name: Switch boot target entity
+    description: >-
+      Entity that points the next boot at Ubuntu. Called only when the next
+      boot entity reports anything other than Ubuntu.
+  next_boot_entity:
+    name: Next boot entity
+    description: >-
+      Entity reporting the current boot target. Its state is compared against
+      the string Ubuntu.
+  windows_entity:
+    name: Windows running entity
+    description: >-
+      Entity reporting whether the machine currently runs Windows. While it is
+      on, the add-on refuses to wake the machine and answers 503.
+  wake_timeout:
+    name: Wake timeout
+    description: >-
+      Seconds to wait for the upstream port after waking the machine. Worth
+      calibrating for your hardware.
+  probe_interval:
+    name: Probe interval
+    description: Seconds between checks of the upstream port.
+  probe_timeout:
+    name: Probe timeout
+    description: Timeout in seconds for a single connection attempt.
+  boot_settle:
+    name: Boot settle delay
+    description: >-
+      Seconds to wait after switching the boot target, so the magic packet is
+      not sent before the switch takes effect.
+  ha_url:
+    name: Home Assistant URL
+    description: >-
+      Only needed when going through the Supervisor does not work. Leave empty
+      to use http://supervisor/core.
+  listen_port:
+    name: Listen port
+    description: >-
+      Port the proxy listens on, 11435 by default. Change the add-on's port
+      mapping to match.

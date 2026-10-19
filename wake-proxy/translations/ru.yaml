@@ -1,0 +1,56 @@
+---
+configuration:
+  upstream_host:
+    name: Адрес upstream
+    description: >-
+      IP машины, на которой работает целевой сервис. Без него add-on не
+      запустится.
+  upstream_port:
+    name: Порт upstream
+    description: Порт целевого сервиса. 11434 — порт Ollama по умолчанию.
+  wake_entity:
+    name: Сущность пробуждения
+    description: >-
+      Сущность, отправляющая magic packet. Для button и input_button
+      вызывается press, для switch — turn_on.
+  boot_ubuntu_entity:
+    name: Сущность переключения загрузки
+    description: >-
+      Сущность, переключающая следующую загрузку на Ubuntu. Вызывается только
+      если сущность цели загрузки сообщает не Ubuntu.
+  next_boot_entity:
+    name: Сущность цели загрузки
+    description: >-
+      Сущность, показывающая текущую цель загрузки. Значение сравнивается со
+      строкой Ubuntu.
+  windows_entity:
+    name: Сущность работы Windows
+    description: >-
+      Сущность, показывающая, работает ли машина под Windows. Пока она в
+      состоянии on, add-on не будит машину и отвечает 503.
+  wake_timeout:
+    name: Таймаут пробуждения
+    description: >-
+      Сколько секунд ждать появления порта upstream после пробуждения. Стоит
+      откалибровать под своё железо.
+  probe_interval:
+    name: Период опроса
+    description: Период между проверками порта upstream, в секундах.
+  probe_timeout:
+    name: Таймаут опроса
+    description: Таймаут одной попытки подключения, в секундах.
+  boot_settle:
+    name: Пауза после переключения
+    description: >-
+      Пауза после переключения цели загрузки, чтобы magic packet не ушёл
+      раньше, чем переключение вступит в силу.
+  ha_url:
+    name: Адрес Home Assistant
+    description: >-
+      Нужен только если обращение через Supervisor не подходит. Пусто —
+      используется http://supervisor/core.
+  listen_port:
+    name: Порт прокси
+    description: >-
+      Порт, на котором слушает прокси, по умолчанию 11435. При изменении
+      поправьте и проброс порта.

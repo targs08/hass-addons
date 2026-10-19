@@ -9,3 +9,5 @@ dnsmasq-pxe-proxy-project.md
 
 # Working notes, not part of the repository content
 netboot-xyz-fork-plan.md
+__pycache__/
+*.pyc

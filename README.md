@@ -17,6 +17,7 @@ Personal collection of Home Assistant add-ons.
 | ------ | ----------- |
 | [PXE Proxy](./pxe-proxy) | Proxy DHCP server for PXE network booting, based on dnsmasq. |
 | [Netboot.xyz (fork)](./netboot-xyz) | Fork of FaserF's netboot.xyz add-on with a `tftp_server_ip` option. |
+| [Wake Proxy](./wake-proxy) | Reverse proxy that wakes the upstream host through Home Assistant on the first request. |
 
 ## Support
 
