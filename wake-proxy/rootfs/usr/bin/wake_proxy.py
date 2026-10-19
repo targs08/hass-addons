@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """
-wake-proxy — reverse proxy с пробуждением сервера через Home Assistant.
+wake-proxy - reverse proxy that wakes the upstream host through Home Assistant.
 
-Когда приходит запрос, а upstream (Ollama) недоступен:
-  1. проверяет, не работает ли машина сейчас под Windows — тогда будить нечего;
-  2. просит HA переключить bootnext-симлинк на Ubuntu;
-  3. просит HA отправить magic packet;
-  4. ждёт, пока откроется порт upstream;
-  5. проксирует запрос как обычно.
+When a request arrives while the upstream (Ollama) is unreachable:
+  1. check whether the machine currently runs Windows - then there is nothing
+     to wake;
+  2. ask HA to point the bootnext symlink at Ubuntu;
+  3. ask HA to send the magic packet;
+  4. wait for the upstream port to open;
+  5. proxy the request as usual.
 
-Зависимостей нет, только стандартная библиотека.
+No dependencies beyond the standard library.
 """
 
 import http.client
@@ -23,12 +24,12 @@ import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-# --- конфигурация ---------------------------------------------------------
+# --- configuration --------------------------------------------------------
 
-# Внутри add-on'а Home Assistant настройки лежат в options.json, а Supervisor
-# выдаёт собственный токен и проксирует Core на http://supervisor/core —
-# тогда long-lived token заводить не нужно. Вне add-on'а всё берётся из
-# переменных окружения, как в обычном docker-compose.
+# Inside a Home Assistant add-on the settings live in options.json, and the
+# Supervisor issues its own token while proxying Core at
+# http://supervisor/core, so no long-lived token is needed. Outside an add-on
+# everything comes from the environment, as it would in plain docker-compose.
 OPTIONS_FILE = os.environ.get("WAKE_PROXY_OPTIONS", "/data/options.json")
 
 try:
@@ -64,7 +65,7 @@ HA_URL   = _env("HA_URL",
                 required=True, option="ha_url")
 HA_TOKEN = _env("HA_TOKEN", SUPERVISOR_TOKEN, required=True)
 
-# сущности из пакета home_server.yaml
+# entities from the home_server.yaml package
 HA_WAKE_BUTTON    = _env("HA_WAKE_BUTTON", "button.home_server_wake",
                          option="wake_entity")
 HA_BOOT_UBUNTU    = _env("HA_BOOT_UBUNTU", "shell_command.home_server_boot_ubuntu",
@@ -90,7 +91,7 @@ def log(msg):
     print(f"[{time.strftime('%H:%M:%S')}] {msg}", flush=True)
 
 
-# --- проверка upstream ----------------------------------------------------
+# --- upstream probe -------------------------------------------------------
 
 def upstream_is_up():
     s = socket.socket()
@@ -115,7 +116,7 @@ def ha_request(path, payload=None, method=None):
 
 
 def ha_state(entity_id):
-    """Состояние сущности или None, если HA недоступен."""
+    """Entity state, or None when HA cannot be reached."""
     try:
         return ha_request(f"/api/states/{entity_id}").get("state")
     except (urllib.error.URLError, OSError, ValueError, AttributeError) as e:
@@ -124,7 +125,7 @@ def ha_state(entity_id):
 
 
 def ha_call(entity_id):
-    """Вызов сервиса по entity_id вида domain.service или нажатие кнопки."""
+    """Call a service named by entity_id, or press a button."""
     domain, name = entity_id.split(".", 1)
     if domain in ("button", "switch", "input_button"):
         service = "press" if domain in ("button", "input_button") else "turn_on"
@@ -133,7 +134,7 @@ def ha_call(entity_id):
     return ha_request(f"/api/services/{domain}/{name}", {})
 
 
-# --- логика пробуждения ---------------------------------------------------
+# --- wake logic -----------------------------------------------------------
 
 class WakeError(Exception):
     def __init__(self, status, message):
@@ -143,12 +144,13 @@ class WakeError(Exception):
 
 
 def ensure_upstream():
-    """Поднимает машину, если нужно. Исключение — если это невозможно."""
+    """Bring the machine up if needed. Raises when that is impossible."""
     if upstream_is_up():
         return
 
     with _wake_lock:
-        # пока ждали блокировку, машину мог поднять соседний запрос
+        # a neighbouring request may have brought the machine up while this
+        # one waited for the lock
         if upstream_is_up():
             return
 
@@ -176,14 +178,14 @@ def ensure_upstream():
         raise WakeError(504, f"Машина не ответила за {WAKE_TIMEOUT} с.")
 
 
-# --- проксирование --------------------------------------------------------
+# --- proxying -------------------------------------------------------------
 
 class Handler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
     server_version = "wake-proxy"
 
     def log_message(self, fmt, *args):
-        pass  # свой лог ниже, стандартный только шумит
+        pass  # this class logs below; the default log is just noise
 
     def _error(self, status, message):
         body = json.dumps({"error": message}).encode()
@@ -232,14 +234,16 @@ class Handler(BaseHTTPRequestHandler):
                     continue
                 self.send_header(k, v)
             if resp.getheader("Content-Length") is None:
-                # длина заранее неизвестна (стриминг) — отдаём по частям
+                # the length is not known up front (streaming), so hand the
+                # response over in chunks
                 self.send_header("Transfer-Encoding", "chunked")
                 chunked = True
             self.end_headers()
 
             while True:
-                # read1, а не read: отдаёт то, что уже пришло, не дожидаясь
-                # заполнения буфера — иначе токены Ollama копятся до конца ответа
+                # read1 rather than read: it returns whatever has arrived
+                # instead of waiting for a full buffer, otherwise Ollama's
+                # tokens pile up until the response ends
                 chunk = resp.read1(8192)
                 if not chunk:
                     break

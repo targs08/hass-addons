@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Проверка живости для Docker HEALTHCHECK.
+"""Liveness probe for the Docker HEALTHCHECK.
 
-Порт берётся там же, где его берёт сам прокси, чтобы проверка не разошлась с
-настройкой listen_port.
+The port is read where the proxy itself reads it, so the check cannot drift
+apart from the listen_port setting.
 """
 import json
 import os
@@ -23,6 +23,6 @@ try:
         f"http://127.0.0.1:{port}/wake-proxy/health", timeout=5
     ) as r:
         sys.exit(0 if r.status == 200 else 1)
-except Exception as err:  # noqa: BLE001 - любая ошибка означает "не живой"
+except Exception as err:  # noqa: BLE001 - any failure means "not alive"
     print(f"wake-proxy-health: {err}")
     sys.exit(1)
